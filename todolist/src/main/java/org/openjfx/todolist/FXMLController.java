@@ -85,15 +85,15 @@ public class FXMLController implements Initializable {
 	}
 	
 	private void loadData() {
-		for(int i = 0; i < 20; i++) {
-			tableData.add(new Item(i, "ripu", new Date().toString(), 1, 
-					"Not Started", new Date().toString(), new Button("Update")));
-		}
+//		for(int i = 0; i < 20; i++) {
+//			tableData.add(new Item(i, "ripu", new Date().toString(), 1, 
+//					"Not Started", new Date().toString(), new Button("Update")));
+//		}
 		this.todo_table.setItems(tableData);
 	}
 	
 	@FXML
-    void addNewItem(ActionEvent event) {
+    private void addNewItem(ActionEvent event) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/addItem.fxml"));
 			Parent root = (Parent) loader.load();
@@ -104,6 +104,11 @@ public class FXMLController implements Initializable {
 			System.err.println(e.getMessage());
 		}
     }
+	
+	public void save(Item item) {
+		tableData.add(item);
+		System.out.println("reached");
+	}
 
      
 }
