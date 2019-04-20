@@ -219,7 +219,7 @@ public class FXMLController implements Initializable {
 	}
 	
 	private String getPrintFileHeader() {
-		String str = String.format("|%-2s|%-20s|%-10s|%-20s|", "Pr", "Description", "Due Date",
+		String str = String.format("|%-2s|%-23s|%-10s|%-20s|", "Pr", "Description", "Due Date",
 				"Status");
 		str += "\n=====================================================================";
 		return str;

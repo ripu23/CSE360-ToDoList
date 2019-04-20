@@ -85,8 +85,12 @@ public class Item {
 	 * @return  string  formatted string
 	 */
 	public String getPrintString() {
-		String str = String.format("|%-2d|%-20s|%-10s|%-20s|", 
-				this.priority, this.description, this.dueDate, 
+		String desc = this.description;
+		if(desc.length() > 20) {
+			desc = desc.substring(0, 19) + "...";
+		}
+		String str = String.format("|%-2d|%-23s|%-10s|%-20s|", 
+				this.priority, desc, this.dueDate, 
 				this.status);
 		return str;
 	}
