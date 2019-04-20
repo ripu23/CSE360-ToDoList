@@ -7,21 +7,28 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="331.0" prefWidth="485.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.openjfx.todolist.AddItemController">
+
+<AnchorPane maxHeight="-Infinity" fx:controller="org.openjfx.todolist.AddItemController" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="331.0" prefWidth="485.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label layoutX="15.0" layoutY="48.0" text="Description" />
-      <TextField fx:id="inputDesc" layoutX="185.0" layoutY="43.0" prefHeight="27.0" prefWidth="225.0" />
-      <DatePicker fx:id="inputDueDate" layoutX="185.0" layoutY="80.0" prefHeight="27.0" prefWidth="225.0" />
+      <TextField layoutX="185.0" layoutY="43.0" prefHeight="27.0" prefWidth="225.0" fx:id="inputDesc" />
+      
+      <DatePicker layoutX="185.0" layoutY="80.0" prefHeight="27.0" prefWidth="225.0" fx:id="inputDueDate" />
       <Label layoutX="15.0" layoutY="85.0" text="Due Date" />
+      
       <Label layoutX="15.0" layoutY="121.0" prefHeight="17.0" prefWidth="57.0" text="Priority" />
-      <TextField fx:id="inputPriority" layoutX="185.0" layoutY="116.0" prefHeight="27.0" prefWidth="225.0" />
-      <Button fx:id="save" layoutX="133.0" layoutY="277.0" mnemonicParsing="false" onAction="#save" prefHeight="27.0" prefWidth="71.0" text="Save" />
-      <Button fx:id="cancel" cancelButton="true" layoutX="298.0" layoutY="277.0" mnemonicParsing="false" onAction="#cancel" prefHeight="27.0" prefWidth="71.0" text="Cancel" />
-      <ChoiceBox fx:id="inputStatus" layoutX="185.0" layoutY="152.0" prefHeight="27.0" prefWidth="225.0" />
+      <TextField layoutX="185.0" layoutY="116.0" prefHeight="27.0" prefWidth="225.0" fx:id="inputPriority" />
+      
+      <ChoiceBox layoutX="185.0" layoutY="152.0" prefHeight="27.0" prefWidth="225.0" fx:id="inputStatus" value="Not started" />
       <Label layoutX="15.0" layoutY="157.0" prefHeight="17.0" prefWidth="57.0" text="Status" />
-      <DatePicker fx:id="inputDateFinished" layoutX="185.0" layoutY="225.0" prefHeight="27.0" prefWidth="225.0" />
-      <DatePicker fx:id="inputDateStarted" layoutX="185.0" layoutY="188.0" prefHeight="27.0" prefWidth="225.0" />
-      <Label layoutX="15.0" layoutY="193.0" prefHeight="17.0" prefWidth="81.0" text="Date Started" />
-      <Label layoutX="15.0" layoutY="230.0" prefHeight="17.0" prefWidth="87.0" text="Date Finished" />
+      
+      <DatePicker fx:id="inputDateStarted" layoutX="185.0" layoutY="188.0" prefHeight= "27.0" prefWidth="225.0" visible="false"/>
+      <Label layoutX="15.0" layoutY="193.0" prefHeight="17.0" prefWidth="81.0" text="Date Started" visible="false" fx:id="startedLabel"/>
+      
+      <DatePicker fx:id="inputDateFinished" layoutX="185.0" layoutY="188.0" prefHeight= "27.0" prefWidth="225.0" visible="false"/>
+      <Label layoutX="15.0" layoutY="193.0" prefHeight="17.0" prefWidth="81.0" text="Date Finished" visible="false" fx:id="finishedLabel"/>
+      
+      <Button layoutX="133.0" layoutY="277.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="61.0" text="Save"  onAction="#handleButtonAction" fx:id="save"/>
+      <Button layoutX="298.0" layoutY="277.0" mnemonicParsing="false" text="Cancel" onAction="#handleButtonAction" fx:id="cancel" />
    </children>
 </AnchorPane>
