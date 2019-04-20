@@ -1,4 +1,4 @@
-package org.openjfx.todolist;
+package org.openjfx.todolist.models;
 
 public class Item {
 	
@@ -64,5 +64,32 @@ public class Item {
 	public String getStatusDate() {
 		return this.statusDate;
 	}
+	
+	
+	/**
+	 * Creates a string used for save file.
+	 * @return  string
+	 */
+	public String getSaveString() {
+		String str;
+		str = this.description + "\n"
+				+ this.priority + "\n"
+				+ this.dueDate + "\n"
+				+ this.status + "\n"
+				+ this.statusDate;
+		return str;
+	}
+	
+	/**
+	 * Creates a formatted string of Item components
+	 * @return  string  formatted string
+	 */
+	public String getPrintString() {
+		String str = String.format("|%-2d|%-20s|%-10s|%-20s|", 
+				this.priority, this.description, this.dueDate, 
+				this.status);
+		return str;
+	}
+
 
 }
