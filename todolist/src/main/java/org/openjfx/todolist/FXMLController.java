@@ -1,52 +1,38 @@
 package org.openjfx.todolist;
 
 import java.net.URL;
-import java.util.Date;
 import java.util.ResourceBundle;
 
-import org.openjfx.todolist.models.Item;
-
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 public class FXMLController implements Initializable {
     
+	private ObservableList<Item> tasks=FXCollections.observableArrayList();
+	MenuItem update= new MenuItem("Update");
+	MenuItem delete= new MenuItem("Delete");
+	private final ContextMenu contextMenu=new ContextMenu(update,delete);
+	
     @FXML
-    private Label label;
+    private Button addItem;
     
-    @FXML
-    private TableView<Item> todo_table;
-    
-    @FXML
-    private TableColumn<Item, String> col_id;
-
-    @FXML
-    private TableColumn<Item, String> col_desc;
-
-    @FXML
-    private TableColumn<Item, String> col_dueDate;
-
-    @FXML
-    private TableColumn<Item, String> col_startDate;
-
-    @FXML
-    private TableColumn<Item, Button> col_actions;
-
-    @FXML
-    private Button addNew;
-
     @FXML
     private Button save;
 
@@ -56,59 +42,77 @@ public class FXMLController implements Initializable {
     @FXML
     private Button restore;
     
+    @FXML private TableView<Item> table;
+    @FXML private TableColumn<Item,String>Description;
+    @FXML private TableColumn<Item,String>DueDate;
+    @FXML private TableColumn<Item,Integer>Priority;
+    @FXML private TableColumn<Item,String>Status;
     
-    ObservableList<Item> tableData = FXCollections.observableArrayList();
-    
-    @FXML
-    private void handleButtonAction(ActionEvent event) {
-        System.out.println("You clicked me!");
-        label.setText("Hello World!");
-    }
+   
+@FXML private void handleAddItemButtonAction(ActionEvent event) {//changes to add item scene
+	try {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/addItem.fxml"));
+		Parent root = (Parent) loader.load();
+		AddItemController control=loader.getController();
+		control.setTableItems(table.getItems());
+		Stage stage = new Stage();
+		stage.setTitle("Add Task");
+		stage.setScene(new Scene(root));
+		stage.show();
+	} catch(Exception e) {
+		System.err.println(e.getMessage());
+	}
+}
 
-    @Override
 	public void initialize(URL location, ResourceBundle resources) {
-		this.initTable();
-		this.loadData();
+		Description.setCellValueFactory(new PropertyValueFactory<Item,String>("description"));
+		DueDate.setCellValueFactory(new PropertyValueFactory<Item,String>("dueDate"));
+		Priority.setCellValueFactory(new PropertyValueFactory<Item,Integer>("priority"));
+		Status.setCellValueFactory(new PropertyValueFactory<Item,String>("status"));
 		
+		 table.setRowFactory(new Callback<TableView<Item>,TableRow<Item>>(){
+		    	public TableRow<Item> call(TableView<Item> tableView){
+		    		final TableRow<Item> row=new TableRow<>();
+		    		delete.setOnAction(new EventHandler<ActionEvent>() {
+		    			@Override
+		    			public void handle(ActionEvent event) {
+		    				Item remove=table.getSelectionModel().getSelectedItem();
+		    				tasks.remove(remove);
+		    			}
+		    		});
+		    		
+		    		
+		    		update.setOnAction(new EventHandler<ActionEvent>() {
+		    			@Override
+		    			public void handle(ActionEvent event) {
+		    				Item update=table.getSelectionModel().getSelectedItem();
+		    				try {
+		    					FXMLLoader loader = new FXMLLoader(getClass().getResource("/addItem.fxml"));
+		    					Parent root = (Parent) loader.load();
+		    					AddItemController control=loader.getController();
+		    					control.infoToUpdate(update,tasks.indexOf(update));
+		    					control.setTableItems(table.getItems());
+		    					Stage stage = new Stage();
+		    					stage.setTitle("Update Task");
+		    					stage.setScene(new Scene(root));
+		    					stage.show();
+		    				} catch(Exception e) {
+		    					System.err.println(e.getMessage());
+		    				}
+		    			}
+		    		});
+		    		
+		    		row.contextMenuProperty().bind(
+		    				Bindings.when(row.emptyProperty()).then((ContextMenu)null).otherwise(contextMenu));
+		    		return row;
+		    	}
+		    });
+		
+		table.setItems(getItem());
 	}
 	
-	private void initTable() {
-		this.initCols();
+	private ObservableList<Item> getItem(){
+		return tasks;
 	}
-	
-	private void initCols() {
-		col_id.setCellValueFactory(new PropertyValueFactory<>("id"));
-		col_desc.setCellValueFactory(new PropertyValueFactory<>("id"));
-		col_dueDate.setCellValueFactory(new PropertyValueFactory<>("id"));
-		col_startDate.setCellValueFactory(new PropertyValueFactory<>("id"));
-		col_actions.setCellValueFactory(new PropertyValueFactory<>("update"));
-	}
-	
-	private void loadData() {
-//		for(int i = 0; i < 20; i++) {
-//			tableData.add(new Item(i, "ripu", new Date().toString(), 1, 
-//					"Not Started", new Date().toString(), new Button("Update")));
-//		}
-		this.todo_table.setItems(tableData);
-	}
-	
-	@FXML
-    private void addNewItem(ActionEvent event) {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/addItem.fxml"));
-			Parent root = (Parent) loader.load();
-			Stage stage = new Stage();
-			stage.setScene(new Scene(root));
-			stage.show();
-		} catch(Exception e) {
-			System.err.println(e.getMessage());
-		}
-    }
-	
-	public void save(Item item) {
-		tableData.add(item);
-		System.out.println("reached");
-	}
-
      
 }
