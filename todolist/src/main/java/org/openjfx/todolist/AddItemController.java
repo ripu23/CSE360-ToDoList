@@ -1,4 +1,5 @@
 package org.openjfx.todolist;
+
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +13,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
@@ -19,7 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class AddItemController implements Initializable{
+public class AddItemController implements Initializable {
 	@FXML
 	private TextField inputDesc;
 
@@ -29,196 +32,250 @@ public class AddItemController implements Initializable{
 	@FXML
 	private TextField inputPriority;
 
-	@FXML private Button cancel;
-	@FXML private Button save;
-	
+	@FXML
+	private Button cancel;
+	@FXML
+	private Button save;
+
 	@FXML
 	private ChoiceBox<String> inputStatus;
-	
+
 	@FXML
 	private DatePicker inputDateFinished;
 
 	@FXML
 	private DatePicker inputDateStarted;
-	
+
 	@FXML
 	private Label startedLabel;
 	@FXML
 	private Label finishedLabel;
-	
+
 	private ObservableList<Item> table;
-	private Item newTask=new Item();
-	
-	private DateTimeFormatter formatDate=DateTimeFormatter.ofPattern("MM/dd/yyyy");
-	
-	private String description="";
-	private String dueDate= "";
-	private int priority=0;
-	private String status="";
-	private String statusDate="";
+	private Item newTask = new Item();
+
+	private DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+	private String description = "";
+	private String dueDate = "";
+	private int priority = 0;
+	private String status = "";
+	private String statusDate = "";
 	private int indexOfUpdated = 0;
-	
-	public void setTableItems(ObservableList<Item> table)//gets table info from FXMLController
+
+	public void setTableItems(ObservableList<Item> table)// gets table info from FXMLController
 	{
-		this.table=table;
+		this.table = table;
 	}
-	
-	public void infoToUpdate(Item item,int index)//gets info about the item that is to be updated
+
+	public void infoToUpdate(Item item, int index)// gets info about the item that is to be updated
 	{
-		description=item.getDescription();
-		dueDate=item.getDueDate();
-		priority=item.getPriority();
-		
+		description = item.getDescription();
+		dueDate = item.getDueDate();
+		priority = item.getPriority();
+
 		inputDesc.setText(description);
-		inputDueDate.setValue(LocalDate.parse(dueDate,formatDate));
+		inputDueDate.setValue(LocalDate.parse(dueDate, formatDate));
 		inputPriority.setText(Integer.toString(priority));
-		
-		indexOfUpdated=index;
+
+		indexOfUpdated = index;
 	}
 
-
-	@FXML private void handleButtonAction(ActionEvent event) throws Exception {//changes to add item scene
-		if(event.getSource()==cancel)
-		{
+	@FXML
+	private void handleButtonAction(ActionEvent event) throws Exception {// changes to add item scene
+		if (event.getSource() == cancel) {
 			Stage stage = (Stage) cancel.getScene().getWindow();
-		    stage.close();
+			stage.close();
 		}
-		
-		if(event.getSource()==save)
-		{
-			description=inputDesc.getText();
-			dueDate= inputDueDate.getValue().format(formatDate);
-			priority=Integer.parseInt(inputPriority.getText());
-			status=inputStatus.getValue();
-			statusDate="";
-			
-			boolean unique=isUnique(description,table);
-			
-			if(unique)//decides whether or not to display error message
-			{
-				Stage stage=(Stage) save.getScene().getWindow();
-				if(stage.getTitle().contentEquals("Update Task"))
+
+		if (event.getSource() == save) {
+			Alert errorAlert = new Alert(AlertType.ERROR);
+			errorAlert.setHeaderText("Input not valid");
+			Error err = checkForErrors(inputDesc.getText(), inputDueDate.getValue(), inputPriority.getText(), inputStatus.getValue());
+			if(err.isErr()) {
+				errorAlert.setContentText(err.getMessage());
+				errorAlert.showAndWait();
+			}else {
+				description = inputDesc.getText();
+				dueDate = inputDueDate.getValue().format(formatDate);
+				priority = Integer.parseInt(inputPriority.getText());
+				status = inputStatus.getValue();
+				statusDate = "";
+
+				boolean unique = isUnique(description, table);
+
+				if (unique)// decides whether or not to display error message
 				{
+					Stage stage = (Stage) save.getScene().getWindow();
+					if (stage.getTitle().contentEquals("Update Task")) {
+						Save();
+					} else {
+						inputDesc.setText("Description must be Unique");
+					}
+				} else {
 					Save();
 				}
-				else {
-					inputDesc.setText("Description must be Unique");
-				}
 			}
-			else {
-				Save();
-			}
+			
 		}
 	}
 	
-	private void Save()
-	{
+
+	private Error checkForErrors(String desc, LocalDate dueDate, String priority, String status) {
+		Error error = new Error();
+		if(desc == null || desc.isEmpty()) {
+			error.setErr(true);
+			error.setMessage("Please enter the description");
+			
+		}else if(dueDate == null) {
+			error.setErr(true);
+			error.setMessage("Due Date not entered");
+			
+		}else if(priority == null || priority.isEmpty()) {
+			error.setErr(true);
+			error.setMessage("Please enter the priority");
+			
+		}else if(status == null || status.isEmpty()) {
+			error.setErr(true);
+			error.setMessage("Please enter the status");
+		}
+		if(!error.isErr()) {
+			try { 
+		        Integer.parseInt(priority); 
+		    } catch(NumberFormatException e) { 
+		    	error.setMessage("Not a valid priority");
+		    	error.setErr(true);
+		    }
+		}
+
+		return error;
+	}
+	
+	private Error checkForErrors(LocalDate date) {
+		Error error = new Error();
+		if(date == null) {
+			error.setErr(true);
+			error.setMessage("Please enter the date");
+		}
+
+		return error;
+	}
+
+	private void Save() {
 		Stage stage = (Stage) save.getScene().getWindow();
-		boolean onlyPriority=false;
-		onlyPriority=checkPriority(priority,table);
-		
-		if(onlyPriority)
-		{
-			updatePriority(table);//increase priority of others
+		boolean onlyPriority = false;
+		boolean error = false;
+		Error err = null;
+		onlyPriority = checkPriority(priority, table);
+
+		if (onlyPriority) {
+			updatePriority(table);// increase priority of others
 		}
-		
-		if(!status.equals("Not started"))
-		{
-			if(status.contentEquals("Started"))
-			{
-				statusDate=inputDateStarted.getValue().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+
+		if (!status.equals("Not started")) {
+			if (status.contentEquals("Started")) {
+				err = checkForErrors(inputDateStarted.getValue());
+				if(err.isErr()) {
+					error = true;
+				}else {
+					statusDate = inputDateStarted.getValue().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+				}
+				
+			} else {
+				err = checkForErrors(inputDateStarted.getValue());
+				if(err.isErr()) {
+					error = true;
+				}else {
+					statusDate = inputDateFinished.getValue().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+				}
+				
 			}
-			else {
-				statusDate=inputDateFinished.getValue().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+			status = status + "(" + statusDate + ")";
+		}
+		if(!error) {
+			newTask = new Item(description, dueDate, priority, status, statusDate);
+			if (stage.getTitle().contentEquals("Update Task")) {
+				table.set(indexOfUpdated, newTask);
+			} else {
+				table.add(newTask);
 			}
-			status=status+"("+statusDate+")";
+			stage.close();
+		}else {
+			Alert errorAlert = new Alert(AlertType.ERROR);
+			errorAlert.setHeaderText("Input not valid");
+			String msg = err == null ? "Invalid entry" : err.getMessage(); 
+			errorAlert.setContentText(msg);
+			errorAlert.showAndWait();
 		}
 		
-		newTask=new Item(description, dueDate, priority, status, statusDate);
-		if(stage.getTitle().contentEquals("Update Task"))
-		{
-			table.set(indexOfUpdated, newTask);
-		}
-		else {
-		table.add(newTask);
-		}
-		
-		stage.close();
 	}
-	
-	private boolean isUnique(String description,ObservableList<Item>list)//checks if description is unique
+
+	private boolean isUnique(String description, ObservableList<Item> list)// checks if description is unique
 	{
-		boolean notUnique=false;
-		for(int index=0; (index<list.size()) && (notUnique!=true); index++)
-		{
-			notUnique=description.equalsIgnoreCase(list.get(index).getDescription());
+		boolean notUnique = false;
+		for (int index = 0; (index < list.size()) && (notUnique != true); index++) {
+			notUnique = description.equalsIgnoreCase(list.get(index).getDescription());
 		}
-		
+
 		return notUnique;
 	}
-	
-	private boolean checkPriority(int priority,ObservableList<Item>list)//checks if there are other items with the same priority
+
+	private boolean checkPriority(int priority, ObservableList<Item> list)// checks if there are other items with the
+																			// same priority
 	{
-		boolean onlyPriority=false;
-		for(int index=0; (index<list.size()) && (onlyPriority!=true); index++)
-		{
-			if(!list.get(index).getDescription().contentEquals(description)) {//since it also checks upon update, don't compare
-																				//element to itself
-				if(priority==list.get(index).getPriority())
-				{
-					onlyPriority=true;
+		boolean onlyPriority = false;
+		for (int index = 0; (index < list.size()) && (onlyPriority != true); index++) {
+			if (!list.get(index).getDescription().contentEquals(description)) {// since it also checks upon update,
+																				// don't compare
+																				// element to itself
+				if (priority == list.get(index).getPriority()) {
+					onlyPriority = true;
 				}
 			}
 		}
 		return onlyPriority;
 	}
-	
-	private void updatePriority(ObservableList<Item>list)//changes the priorities of other items in the list if necessary
+
+	private void updatePriority(ObservableList<Item> list)// changes the priorities of other items in the list if
+															// necessary
 	{
-		for(int index=0; index<list.size(); index++)
-		{
-			list.get(index).setPriority(list.get(index).getPriority()+1);
+		for (int index = 0; index < list.size(); index++) {
+			list.get(index).setPriority(list.get(index).getPriority() + 1);
 		}
 	}
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		inputStatus.getItems().addAll("Not started", "Started", "Finished");
-		inputStatus.getSelectionModel().selectedItemProperty().addListener( new//listener for status menu
-				ChangeListener<String>() {
-			public void changed(ObservableValue<? extends String> ov, String value, String newValue) {//changes visibility of items
-				if(value.equals(newValue))
-				{
-					
-				}
-				else if((newValue.equals("Started")&&value.equals("Finished")))
-				{
+		inputStatus.getSelectionModel().selectedItemProperty().addListener(new// listener for status menu
+		ChangeListener<String>() {
+			public void changed(ObservableValue<? extends String> ov, String value, String newValue) {// changes
+																										// visibility of
+																										// items
+				if (value.equals(newValue)) {
+
+				} else if ((newValue.equals("Started") && value.equals("Finished"))) {
 					finishedLabel.setVisible(false);
 					inputDateFinished.setVisible(false);
 					startedLabel.setVisible(true);
 					inputDateStarted.setVisible(true);
 				}
-				
-				else if((newValue.equals("Finished")&&value.equals("Started")))
-				{
+
+				else if ((newValue.equals("Finished") && value.equals("Started"))) {
 					startedLabel.setVisible(false);
 					inputDateStarted.setVisible(false);
 					finishedLabel.setVisible(true);
 					inputDateFinished.setVisible(true);
-				}
-				else{
-					if(newValue.equals("Finished"))
-					{
+				} else {
+					if (newValue.equals("Finished")) {
 						finishedLabel.setVisible(true);
 						inputDateFinished.setVisible(true);
 					}
-					
-					if(newValue.equals("Started"))
-					{
+
+					if (newValue.equals("Started")) {
 						startedLabel.setVisible(true);
 						inputDateStarted.setVisible(true);
-					}
-					else {
+					} else {
 						startedLabel.setVisible(false);
 						inputDateStarted.setVisible(false);
 						finishedLabel.setVisible(false);
