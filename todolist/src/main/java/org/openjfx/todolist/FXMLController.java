@@ -1,12 +1,6 @@
 package org.openjfx.todolist;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -151,13 +145,10 @@ public class FXMLController implements Initializable {
 	private void restoreButtonHandler(ActionEvent event) {
 		if(this.table.getItems().size() < 1) { // check to make sure list is empty
 			try {
-				File file = new File("src/main/resources/saveFile.txt");
-				FileReader fr;
-				fr = new FileReader(file);
-				BufferedReader bfr = new BufferedReader(fr);
+				InputStream in = getClass().getResourceAsStream("/saveFile.txt");
+				BufferedReader bfr = new BufferedReader(new InputStreamReader(in));
 				readFile(bfr);
 				bfr.close();
-				fr.close();
 			} catch (FileNotFoundException e) {
 				System.err.println("FILE NOT FOUND EXCEPTION" + e.toString());
 			} catch (IOException e) {
@@ -165,7 +156,8 @@ public class FXMLController implements Initializable {
 			}
 		}
 	}
-	
+
+
 	private void readFile(BufferedReader bfr) {
 		int listSize;
 		try {
